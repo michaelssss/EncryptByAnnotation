@@ -1,44 +1,39 @@
 package com.michaelssss;
 
-public class TestECB
-{
-    public static void main(String[] s)
-    {
+import org.junit.Test;
+
+public class TestECB {
+    @Test
+    public void testAnnotationHandler() {
         TestClass testClass = new TestClass("aaa", "bbb");
         AnnotationHandler handler = new AnnotationHandlerImpl();
-        try
-        {
+        try {
             System.out.println("pre " + testClass);
-            handler.handleECB(testClass);
+            handler.handleEncryption(testClass);
             System.out.println("after " + testClass);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private static class TestClass
-    {
-        @ECB(key = "heiheiheiheiheiheiheiheihei")
+    private static class TestClass {
+        @Encryption(encryptor = "ECBEncryptor", key = "heiheiheiheiheiheiheiheihei")
         String abc;
 
         String ccc;
 
-        public TestClass(String abc, String ccc)
-        {
+        TestClass(String abc, String ccc) {
             this.abc = abc;
             this.ccc = ccc;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "TestClass{" +
-                "abc='" + abc + '\'' +
-                ", ccc='" + ccc + '\'' +
-                '}';
+                    "abc='" + abc + '\'' +
+                    ", ccc='" + ccc + '\'' +
+                    '}';
         }
     }
 }

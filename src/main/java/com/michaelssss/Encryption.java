@@ -7,7 +7,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface ECB
-{
+public @interface Encryption {
+    String encryptor();
+
     String key();
 }

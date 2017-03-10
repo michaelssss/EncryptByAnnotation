@@ -3,6 +3,6 @@ package com.michaelssss;
 
 public interface AnnotationHandler
 {
-    void handleECB(Object e)
+    void handleEncryption(Object e)
         throws NoSupportEncryptTypeException;
 }

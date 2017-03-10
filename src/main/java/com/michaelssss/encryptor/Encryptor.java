@@ -1,4 +1,4 @@
-package com.michaelssss;
+package com.michaelssss.encryptor;
 public interface Encryptor
 {
     byte[] encrypt(byte[] plainObject);

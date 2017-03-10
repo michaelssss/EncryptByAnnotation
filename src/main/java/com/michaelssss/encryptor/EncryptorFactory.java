@@ -1,4 +1,6 @@
-package com.michaelssss;
+package com.michaelssss.encryptor;
+
+import com.michaelssss.NoDeclearEncryptMethodException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,6 +45,10 @@ public class EncryptorFactory
         }
     }
 
+    private static void registerEncryptor(String name, Encryptor encryptor) {
+        encryptorMap.put(name, encryptor);
+    }
+
     public Encryptor getEncrytor(String encryWay)
         throws NoDeclearEncryptMethodException
     {
@@ -52,10 +58,5 @@ public class EncryptorFactory
             return encryptor;
         }
         throw new NoDeclearEncryptMethodException();
-    }
-
-    public static void registerEncryptor(String name, Encryptor encryptor)
-    {
-        encryptorMap.put(name, encryptor);
     }
 }

@@ -1,76 +1,55 @@
 package com.michaelssss;
 
+import com.michaelssss.encryptor.EncryptorFactory;
+
 import java.lang.reflect.Field;
 
-public class AnnotationHandlerImpl implements AnnotationHandler
-{
-    private Encryptor ECBEncryptor;
+public class AnnotationHandlerImpl implements AnnotationHandler {
+    private EncryptorFactory factory;
 
-    public AnnotationHandlerImpl()
-    {
-        EncryptorFactory factory = new EncryptorFactory();
-        try
-        {
-            ECBEncryptor = factory.getEncrytor(ECBEncryptor.class.getSimpleName());
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        assert ECBEncryptor != null;
+    AnnotationHandlerImpl() {
+        factory = new EncryptorFactory();
     }
 
     @Override
-    public void handleECB(Object e)
-        throws NoSupportEncryptTypeException
-    {
+    public void handleEncryption(Object e)
+            throws NoSupportEncryptTypeException {
         Field[] fields = e.getClass().getDeclaredFields();
-        for (Field field : fields)
-        {
-            if (hasECBAnnotation(field))
-            {
-                if (!field.getType().equals(String.class))
-                {
+        for (Field field : fields) {
+            if (hasEncryptionAnnotation(field)) {
+                if (!field.getType().equals(String.class)) {
                     throw new NoSupportEncryptTypeException();
                 }
-                ECB ecb = field.getAnnotation(ECB.class);
+                Encryption encryption = field.getAnnotation(Encryption.class);
                 field.setAccessible(true);
-                try
-                {
-                    String s = (String)field.get(e);
+                try {
+                    String s = (String) field.get(e);
                     field.set(e,
-                        bytesToHexString(ECBEncryptor.encrypt(s.getBytes("UTF-8"), ecb.key().getBytes("UTF-8"))));
-                }
-                catch (Exception ex)
-                {
+                            bytesToHexString(factory.getEncrytor(encryption.encryptor()).encrypt(s.getBytes("UTF-8"), encryption.key().getBytes("UTF-8"))));
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
         }
     }
 
-    private String bytesToHexString(byte[] src)
-    {
+    private String bytesToHexString(byte[] srcs) {
         StringBuilder stringBuilder = new StringBuilder("");
-        if (src == null || src.length <= 0)
-        {
+        if (srcs == null || srcs.length <= 0) {
             return null;
         }
-        for (int i = 0; i < src.length; i++)
-        {
-            int v = src[i] & 0xFF;
+        for (byte src : srcs) {
+            int v = src & 0xFF;
             String hv = Integer.toHexString(v);
-            if (hv.length() < 2)
-            {
+            if (hv.length() < 2) {
                 stringBuilder.append(0);
             }
-            stringBuilder.append(hv + " ");
+            stringBuilder.append(hv);
         }
         return stringBuilder.toString();
     }
 
-    private boolean hasECBAnnotation(Field field)
-    {
-        return null != field.getAnnotation(ECB.class);
+    private boolean hasEncryptionAnnotation(Field field) {
+        return null != field.getAnnotation(Encryption.class);
     }
 }

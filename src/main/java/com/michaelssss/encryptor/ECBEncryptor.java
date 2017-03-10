@@ -1,4 +1,4 @@
-package com.michaelssss;
+package com.michaelssss.encryptor;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -6,7 +6,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 
-public class ECBEncryptor implements Encryptor
+class ECBEncryptor implements Encryptor
 {
     @Override
     public byte[] encrypt(byte[] plainObject)
