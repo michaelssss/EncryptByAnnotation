@@ -1,10 +1,14 @@
 package com.michaelssss;
 
 import com.michaelssss.encryptor.EncryptorFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 public class AnnotationHandlerImpl implements AnnotationHandler {
+    private final static Logger logger = LogManager.getLogger(AnnotationHandler.class);
     private EncryptorFactory factory;
 
     AnnotationHandlerImpl() {
@@ -12,24 +16,29 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
     }
 
     @Override
-    public void handleEncryption(Object e)
+    public void handle(Object e)
             throws NoSupportEncryptTypeException {
         Field[] fields = e.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (hasEncryptionAnnotation(field)) {
-                if (!field.getType().equals(String.class)) {
-                    throw new NoSupportEncryptTypeException();
-                }
-                Encryption encryption = field.getAnnotation(Encryption.class);
-                field.setAccessible(true);
-                try {
-                    String s = (String) field.get(e);
-                    field.set(e,
-                            bytesToHexString(factory.getEncrytor(encryption.encryptor()).encrypt(s.getBytes("UTF-8"), encryption.key().getBytes("UTF-8"))));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                handleEncryption(e, field);
             }
+        }
+    }
+
+    private void handleEncryption(Object e, Field field) throws NoSupportEncryptTypeException {
+        if (!field.getType().equals(String.class)) {
+            throw new NoSupportEncryptTypeException();
+        }
+        Encryption encryption = field.getAnnotation(Encryption.class);
+        field.setAccessible(true);
+        try {
+            String s = (String) field.get(e);
+
+            field.set(e,
+                    bytesToHexString(StringUtils.isNotBlank(encryption.key()) ? factory.getEncrytor(encryption.encryptor()).encrypt(s.getBytes("UTF-8"), encryption.key().getBytes("UTF-8")) : factory.getEncrytor(encryption.encryptor()).encrypt(s.getBytes("UTF-8"))));
+        } catch (Exception ex) {
+            logger.error(ex);
         }
     }
 
@@ -50,6 +59,6 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
     }
 
     private boolean hasEncryptionAnnotation(Field field) {
-        return null != field.getAnnotation(Encryption.class);
+        return Objects.nonNull(field.getAnnotation(Encryption.class));
     }
 }

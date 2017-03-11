@@ -1,4 +1,4 @@
-package com.michaelssss.encryptor;
+package com.michaelssss.decryptor;
 
 import com.michaelssss.Keys;
 import org.apache.logging.log4j.LogManager;
@@ -10,31 +10,34 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 
-class ECBEncryptor implements Encryptor {
-    private final static Logger logger = LogManager.getLogger(Encryptor.class);
+/**
+ * Created by michaelssss on 2017/3/11.
+ */
+class ECBDecryptor implements Decryptor {
+    private final static Logger logger = LogManager.getLogger(Decryptor.class);
 
-    ECBEncryptor() {
-        logger.info("ECBEncryptor successful");
+    ECBDecryptor() {
+        logger.info("ECBDecryptor initial successful");
     }
 
     @Override
-    public byte[] encrypt(byte[] plainObject) {
-        return ECBEncryptor(plainObject, Keys.ECBKEY.getKey().getBytes(Charset.forName("UTF-8")));
+    public byte[] decrypt(byte[] plainObject) {
+        return ECBDecryptor(plainObject, Keys.ECBKEY.getKey().getBytes(Charset.forName("UTF-8")));
     }
 
     @Override
-    public byte[] encrypt(byte[] plainObject, byte[] key) {
-        return ECBEncryptor(plainObject, key);
+    public byte[] decrypt(byte[] plainObject, byte[] key) {
+        return ECBDecryptor(plainObject, key);
     }
 
-    private byte[] ECBEncryptor(byte[] plainData, byte[] key) {
+    private byte[] ECBDecryptor(byte[] plainData, byte[] key) {
         byte[] data = new byte[0];
         try {
             Cipher ecbCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             byte[] keys = new byte[16];
             System.arraycopy(key, 0, keys, 0, key.length > keys.length ? keys.length : key.length);
             SecretKey secretKey = new SecretKeySpec(keys, "AES");
-            ecbCipher.init(Cipher.ENCRYPT_MODE, secretKey, new SecureRandom());
+            ecbCipher.init(Cipher.DECRYPT_MODE, secretKey, new SecureRandom());
             data = ecbCipher.doFinal(plainData);
         } catch (Exception e) {
             logger.error("something horrible happend ", e);

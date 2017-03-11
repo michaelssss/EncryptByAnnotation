@@ -1,6 +1,7 @@
-package com.michaelssss.encryptor;
+package com.michaelssss.decryptor;
 
 import com.michaelssss.NoDeclearEncryptMethodException;
+import com.michaelssss.encryptor.EncryptorFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,13 +14,16 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.TreeMap;
 
-public class EncryptorFactory {
-    private final static Logger logger = LogManager.getLogger(EncryptorFactory.class);
-    private static final Map<String, Encryptor> encryptorMap = new TreeMap<>();
+/**
+ * Created by michaelssss on 2017/3/11.
+ */
+public class DecryptorFactory {
+    private final static Logger logger = LogManager.getLogger(DecryptorFactory.class);
+    private static final Map<String, Decryptor> decryptorMap = new TreeMap<>();
 
     static {
         Properties properties = new Properties();
-        URL path = EncryptorFactory.class.getClassLoader().getResource("encryptorList.properties");
+        URL path = EncryptorFactory.class.getClassLoader().getResource("decryptorList.properties");
         try (InputStream in = new FileInputStream(path.getPath())) {
             properties.load(in);
         } catch (IOException e) {
@@ -28,24 +32,24 @@ public class EncryptorFactory {
         for (Map.Entry entry : properties.entrySet()) {
             try {
                 Object o = Class.forName(entry.getValue().toString()).newInstance();
-                if (o instanceof Encryptor) {
-                    registerEncryptor(entry.getKey().toString(), (Encryptor) o);
+                if (o instanceof Decryptor) {
+                    registerDecryptor(entry.getKey().toString(), (Decryptor) o);
                 }
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
                 logger.fatal(e);
             }
         }
-        logger.info("Encryptor Initial successful");
-        logger.info("load {} Encryptor", encryptorMap.size());
+        logger.info("Decryptor Initial successful");
+        logger.info("load {} Decryptor", decryptorMap.size());
     }
 
-    private static void registerEncryptor(String name, Encryptor encryptor) {
-        encryptorMap.put(name, encryptor);
+    private static void registerDecryptor(String name, Decryptor decryptor) {
+        decryptorMap.put(name, decryptor);
     }
 
-    public Encryptor getEncrytor(String encryWay)
+    public Decryptor getDecrytor(String encryWay)
             throws NoDeclearEncryptMethodException {
-        Encryptor encryptor = encryptorMap.get(encryWay);
+        Decryptor encryptor = decryptorMap.get(encryWay);
         if (Objects.nonNull(encryptor)) {
             return encryptor;
         }

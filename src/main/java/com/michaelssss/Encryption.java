@@ -10,5 +10,5 @@ import java.lang.annotation.*;
 public @interface Encryption {
     String encryptor();
 
-    String key();
+    String key() default "";
 }

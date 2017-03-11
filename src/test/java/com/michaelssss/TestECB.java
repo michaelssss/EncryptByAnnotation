@@ -9,7 +9,7 @@ public class TestECB {
         AnnotationHandler handler = new AnnotationHandlerImpl();
         try {
             System.out.println("pre " + testClass);
-            handler.handleEncryption(testClass);
+            handler.handle(testClass);
             System.out.println("after " + testClass);
         } catch (Exception e) {
             e.printStackTrace();
@@ -17,8 +17,10 @@ public class TestECB {
 
     }
 
+
     private static class TestClass {
-        @Encryption(encryptor = "ECBEncryptor", key = "heiheiheiheiheiheiheiheihei")
+
+        @Encryption(encryptor = "ECBEncryptor")
         String abc;
 
         String ccc;
