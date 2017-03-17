@@ -1,10 +1,12 @@
 package com.michaelssss;
 
+import com.michaelssss.encryptor.Encryptor;
 import com.michaelssss.encryptor.EncryptorFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 public class EncryptionAnnotationHandlerImpl implements AnnotationHandler {
@@ -21,15 +23,39 @@ public class EncryptionAnnotationHandlerImpl implements AnnotationHandler {
         Field[] fields = e.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (hasEncryptionAnnotation(field)) {
-                handleEncryption(e, field);
+                if (FieldUtils.isStringType(field)) {
+                    handleStringEncryption(e, field);
+                } else if (FieldUtils.isBytesBuff(field)) {
+                    handleBytesBuff(e, field);
+                } else {
+                    throw new NoSupportEncryptTypeException(field.getType().getClass().getSimpleName());
+                }
             }
         }
     }
 
-    private void handleEncryption(Object e, Field field) throws NoSupportEncryptTypeException {
-        if (!field.getType().equals(String.class)) {
-            throw new NoSupportEncryptTypeException();
+
+    private void handleBytesBuff(Object o, Field field) {
+        Encryption encryption = field.getAnnotation(Encryption.class);
+        String key = encryption.key();
+        byte[] key2bytes = new byte[0];
+        if (StringUtils.isBlank(key))
+            key2bytes = key.getBytes(Charset.forName("UTF-8"));
+        String encryptor = encryption.encryptor();
+        try {
+            Encryptor encryptor1 = factory.getEncrytor(encryptor);
+            field.setAccessible(true);
+            byte[] bytes = (byte[]) field.get(o);
+            field.set(o, StringUtils.isBlank(key) ? encryptor1.encrypt(bytes) : encryptor1.encrypt(bytes, key2bytes));
+        } catch (Exception e) {
+            logger.error("", e);
+        } finally {
+            field.setAccessible(false);
         }
+    }
+
+    private void handleStringEncryption(Object e, Field field) {
+
         Encryption encryption = field.getAnnotation(Encryption.class);
         field.setAccessible(true);
         try {
@@ -39,6 +65,8 @@ public class EncryptionAnnotationHandlerImpl implements AnnotationHandler {
                     bytesToHexString(StringUtils.isNotBlank(encryption.key()) ? factory.getEncrytor(encryption.encryptor()).encrypt(s.getBytes("UTF-8"), encryption.key().getBytes("UTF-8")) : factory.getEncrytor(encryption.encryptor()).encrypt(s.getBytes("UTF-8"))));
         } catch (Exception ex) {
             logger.error(ex);
+        } finally {
+            field.setAccessible(false);
         }
     }
 
